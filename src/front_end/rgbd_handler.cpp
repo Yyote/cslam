@@ -211,12 +211,18 @@ void RGBDHandler::rgbd_callback(
 		local_transform = rtabmap_conversions::getTransform(base_frame_id_, image_rect_rgb->header.frame_id, stamp, *tf_buffer_, 0.1);
 		if (local_transform.isNull())
 		{
-      else RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... LOCAL TRANSFORM IS NULL");
+      else 
+      {
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... LOCAL TRANSFORM IS NULL");
+      }
       return;
 		}
   }
-  else RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... BASE FRAME ID IS EMPTY");
-
+  else 
+  {
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... BASE FRAME ID IS EMPTY");
+  }
+  
   cv_bridge::CvImageConstPtr ptr_image = cv_bridge::toCvShare(image_rect_rgb);
   if (image_rect_rgb->encoding.compare(sensor_msgs::image_encodings::TYPE_8UC1) != 0 &&
       image_rect_rgb->encoding.compare(sensor_msgs::image_encodings::MONO8) != 0)
