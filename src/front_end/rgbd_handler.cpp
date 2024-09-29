@@ -387,6 +387,7 @@ void RGBDHandler::process_new_sensor_data()
       // Compute local descriptors
       compute_local_descriptors(sensor_data.first);
 
+      RCLCPP_INFO_STREAM(node_->get_logger(), "1");
       
       bool generate_keyframe = generate_new_keyframe(sensor_data.first);
       RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tGenerating new keyframe...");
