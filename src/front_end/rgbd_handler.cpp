@@ -352,11 +352,11 @@ bool RGBDHandler::generate_new_keyframe(std::shared_ptr<rtabmap::SensorData> &ke
 
 void RGBDHandler::process_new_sensor_data()
 {
-  RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...");
 
   if (!received_data_queue_.empty())
   {
-    RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...");
+    RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...");
     auto sensor_data = received_data_queue_.front();
     received_data_queue_.pop_front();
 
@@ -368,15 +368,15 @@ void RGBDHandler::process_new_sensor_data()
 
     if (sensor_data.first->isValid())
     {
-      RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...");
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...");
       // Compute local descriptors
       compute_local_descriptors(sensor_data.first);
 
       bool generate_keyframe = generate_new_keyframe(sensor_data.first);
-      RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tGenerating new keyframe...");
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tGenerating new keyframe...");
       if (generate_keyframe)
       {
-        RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSuccessful");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSuccessful");
         // Set keyframe ID
         sensor_data.first->setId(nb_local_keyframes_);
         nb_local_keyframes_++;
@@ -385,7 +385,7 @@ void RGBDHandler::process_new_sensor_data()
           send_keyframe(sensor_data, gps_fix);
         } else {
           // Send keyframe for loop detection
-          RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSending keyframe.");
+          RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSending keyframe.");
           send_keyframe(sensor_data);
         }
       }
@@ -399,12 +399,12 @@ void RGBDHandler::process_new_sensor_data()
     }
     else
     {
-      RCLCPP_ERROR_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tSENSOR_DATA IS INVALID.");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tSENSOR_DATA IS INVALID.");
     }
   }
   else
   {
-    RCLCPP_ERROR_STREAM(this->get_logger(), "map_manager: Processing new sensor data...\n\tRECEIVED DATA IS EMPTY.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tRECEIVED DATA IS EMPTY.");
   }
 }
 
@@ -589,7 +589,7 @@ void RGBDHandler::send_keyframe(const std::pair<std::shared_ptr<rtabmap::SensorD
   odom_msg.id = keypoints_data.first->id();
   odom_msg.odom = *keypoints_data.second;
   keyframe_odom_publisher_->publish(odom_msg);
-  RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Publishing keyframe odom");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Publishing keyframe odom");
 
   if (enable_visualization_)
   {
@@ -619,7 +619,7 @@ void RGBDHandler::send_keyframe(const std::pair<std::shared_ptr<rtabmap::SensorD
   odom_msg.odom = *keypoints_data.second;
   odom_msg.gps = gps_data;
   keyframe_odom_publisher_->publish(odom_msg);
-  RCLCPP_INFO_STREAM(this->get_logger(), "map_manager: Publishing keyframe odom");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Publishing keyframe odom");
 
   if (enable_visualization_)
   {
