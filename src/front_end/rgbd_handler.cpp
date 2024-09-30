@@ -328,11 +328,11 @@ void RGBDHandler::compute_local_descriptors(
             frame_data->imageRaw().rows, frame_data->imageRaw().cols,
             frame_data->depthRaw().rows, frame_data->depthRaw().cols);
     }
-    if (interpolated_depth.empty() || interpolated_depth.rows <= 0 || interpolated_depth.cols <= 0)
-    {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Interpolated depth image has invalid dimensions.");
-        return;
-    }
+    // if (interpolated_depth.empty() || interpolated_depth.rows <= 0 || interpolated_depth.cols <= 0)
+    // {
+    //     RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Interpolated depth image has invalid dimensions.");
+    //     return;
+    // }
   }
 
   rtabmap::ParametersMap registration_params;
