@@ -176,7 +176,7 @@ void RGBDHandler::rgbd_callback(
     const sensor_msgs::msg::CameraInfo::ConstSharedPtr camera_info_rgb,
     const nav_msgs::msg::Odometry::ConstSharedPtr odom)
 {
-  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: rgbd callback in...");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in...");
   // If odom tracking failed, do not process the frame
   if (odom->pose.covariance[0] > 1000)
   {
@@ -211,13 +211,13 @@ void RGBDHandler::rgbd_callback(
 		local_transform = rtabmap_conversions::getTransform(base_frame_id_, image_rect_rgb->header.frame_id, stamp, *tf_buffer_, 0.1);
 		if (local_transform.isNull())
 		{
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... LOCAL TRANSFORM IS NULL");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... LOCAL TRANSFORM IS NULL");
       return;
 		}
   }
   else 
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: rgbd callback in... BASE FRAME ID IS EMPTY");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... BASE FRAME ID IS EMPTY");
   }
 
   cv_bridge::CvImageConstPtr ptr_image = cv_bridge::toCvShare(image_rect_rgb);
@@ -227,28 +227,37 @@ void RGBDHandler::rgbd_callback(
     if (image_rect_rgb->encoding.compare(sensor_msgs::image_encodings::MONO16) != 0)
     {
       ptr_image = cv_bridge::cvtColor(ptr_image, "bgr8");
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Converting to bgr8...");
     }
     else
     {
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Converting to mono8...");
       ptr_image = cv_bridge::cvtColor(ptr_image, "mono8");
     }
   }
 
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Converting toCvShare...");
   cv_bridge::CvImageConstPtr ptr_depth = cv_bridge::toCvShare(image_rect_depth);
 
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Getting camera model...");
   CameraModel camera_model = rtabmap_conversions::cameraModelFromROS(*camera_info_rgb, local_transform);
 
   // copy data
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Copying data...");
   cv::Mat rgb, depth;
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Copying rgb...");
   ptr_image->image.copyTo(rgb);
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Copying depth...");
   ptr_depth->image.copyTo(depth);
 
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Making data shared_ptr...");
   auto data = std::make_shared<rtabmap::SensorData>(
       rgb, depth,
       camera_model,
       0,
       rtabmap_conversions::timestampFromROS(stamp));
 
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nrgbd callback in... Pushing...");
   received_data_queue_.push_back(std::make_pair(data, odom));
   if (received_data_queue_.size() > max_queue_size_)
   {
@@ -367,11 +376,11 @@ bool RGBDHandler::generate_new_keyframe(std::shared_ptr<rtabmap::SensorData> &ke
 
 void RGBDHandler::process_new_sensor_data()
 {
-  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...");
 
   if (!received_data_queue_.empty())
   {
-    RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...");
+    RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...");
     auto sensor_data = received_data_queue_.front();
     received_data_queue_.pop_front();
 
@@ -383,17 +392,17 @@ void RGBDHandler::process_new_sensor_data()
 
     if (sensor_data.first->isValid())
     {
-      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...");
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...");
       // Compute local descriptors
       compute_local_descriptors(sensor_data.first);
 
       RCLCPP_INFO_STREAM(node_->get_logger(), "1");
       
       bool generate_keyframe = generate_new_keyframe(sensor_data.first);
-      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tGenerating new keyframe...");
+      RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tGenerating new keyframe...");
       if (generate_keyframe)
       {
-        RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSuccessful");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSuccessful");
         // Set keyframe ID
         sensor_data.first->setId(nb_local_keyframes_);
         nb_local_keyframes_++;
@@ -402,7 +411,7 @@ void RGBDHandler::process_new_sensor_data()
           send_keyframe(sensor_data, gps_fix);
         } else {
           // Send keyframe for loop detection
-          RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSending keyframe.");
+          RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...\n\t\tsensor_data is valid...\n\t\t\tSending keyframe.");
           send_keyframe(sensor_data);
         }
       }
@@ -416,12 +425,12 @@ void RGBDHandler::process_new_sensor_data()
     }
     else
     {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tReceived data is not empty...\n\t\tSENSOR_DATA IS INVALID.");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tReceived data is not empty...\n\t\tSENSOR_DATA IS INVALID.");
     }
   }
   else
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: Processing new sensor data...\n\tRECEIVED DATA IS EMPTY.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nProcessing new sensor data...\n\tRECEIVED DATA IS EMPTY.");
   }
 }
 
@@ -606,7 +615,7 @@ void RGBDHandler::send_keyframe(const std::pair<std::shared_ptr<rtabmap::SensorD
   odom_msg.id = keypoints_data.first->id();
   odom_msg.odom = *keypoints_data.second;
   keyframe_odom_publisher_->publish(odom_msg);
-  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Publishing keyframe odom");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nPublishing keyframe odom");
 
   if (enable_visualization_)
   {
@@ -636,7 +645,7 @@ void RGBDHandler::send_keyframe(const std::pair<std::shared_ptr<rtabmap::SensorD
   odom_msg.odom = *keypoints_data.second;
   odom_msg.gps = gps_data;
   keyframe_odom_publisher_->publish(odom_msg);
-  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: Publishing keyframe odom");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "map_manager: \nPublishing keyframe odom");
 
   if (enable_visualization_)
   {
