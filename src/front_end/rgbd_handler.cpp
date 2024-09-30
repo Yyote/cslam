@@ -286,8 +286,8 @@ void RGBDHandler::compute_local_descriptors(
   std::vector<cv::KeyPoint> kpts_from;
   cv::Mat image = frame_data->imageRaw();
 
-  RCLCPP_INFO_STREAM(node_->get_logger(), "Image dimensions: rows: " << image.rows << "cols: " << image.cols)
-  RCLCPP_INFO_STREAM(node_->get_logger(), "Depth dimensions: rows: " << frame_data->depthRaw().rows << "cols: " << frame_data->depthRaw().cols)
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Image dimensions: rows: " << image.rows << "cols: " << image.cols);
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Depth dimensions: rows: " << frame_data->depthRaw().rows << "cols: " << frame_data->depthRaw().cols);
 
   if (image.empty())
   {
