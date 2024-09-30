@@ -98,6 +98,7 @@
   <exec_depend>cslam_common_interfaces</exec_depend>
   <exec_depend>cslam_common_interfaces</exec_depend>
   
+  <depend>backward_ros</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_cmake_pytest</test_depend>
