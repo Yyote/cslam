@@ -285,6 +285,22 @@ void RGBDHandler::compute_local_descriptors(
   frame_data->uncompressData();
   std::vector<cv::KeyPoint> kpts_from;
   cv::Mat image = frame_data->imageRaw();
+
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Image dimensions: rows: " << image.rows << "cols: " << image.cols)
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Depth dimensions: rows: " << frame_data->depthRaw().rows << "cols: " << frame_data->depthRaw().cols)
+
+  if (image.empty())
+  {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Image is empty.");
+      return;
+  }
+
+  if (frame_data->depthRaw().empty())
+  {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Depth image is empty.");
+      return;
+  }
+
   if (image.channels() > 1)
   {
     cv::Mat tmp;
@@ -311,6 +327,11 @@ void RGBDHandler::compute_local_descriptors(
             rtabmap::Parameters::kVisDepthAsMask().c_str(),
             frame_data->imageRaw().rows, frame_data->imageRaw().cols,
             frame_data->depthRaw().rows, frame_data->depthRaw().cols);
+    }
+    if (interpolated_depth.empty() || interpolated_depth.rows <= 0 || interpolated_depth.cols <= 0)
+    {
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Interpolated depth image has invalid dimensions.");
+        return;
     }
   }
 
