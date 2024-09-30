@@ -66,6 +66,14 @@ find_package(RTABMap 0.20.18 REQUIRED)
 # Find GTSAM
 find_package(GTSAM CONFIG REQUIRED)
 
+FetchContent_Declare(Backward    #Note: For some reason I ran into issues when the target here is called backwards with a small b at the beginning
+    GIT_REPOSITORY https://github.com/bombela/backward-cpp
+    GIT_TAG master  # or a version tag, such as v1.6
+ 
+)
+FetchContent_MakeAvailable(Backward)
+
+
 # kinetic issue, rtabmap now requires at least c++11
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
@@ -144,6 +152,7 @@ add_executable(map_manager
   src/front_end/rgbd_handler.cpp 
   #src/front_end/sensor_msg_utils.cpp
   src/front_end/visualization_utils.cpp)
+target_link_libraries(map_manager backward_object)
 add_dependencies(map_manager  
   map_manager
   ${${PROJECT_NAME}_EXPORTED_TARGETS})
