@@ -333,7 +333,6 @@ void RGBDHandler::compute_local_descriptors(
     //     RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Interpolated depth image has invalid dimensions.");
     //     return;
     // }
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nCompute_local_descriptors end.");
   }
 
   rtabmap::ParametersMap registration_params;
@@ -341,11 +340,26 @@ void RGBDHandler::compute_local_descriptors(
       rtabmap::Parameters::kVisMinInliers(), std::to_string(min_inliers_)));
   auto detector = rtabmap::Feature2D::create(registration_params);
 
-  auto kpts = detector->generateKeypoints(image, depth_mask);
-  auto descriptors = detector->generateDescriptors(image, kpts);
-  auto kpts3D = detector->generateKeypoints3D(*frame_data, kpts);
-
-  frame_data->setFeatures(kpts, kpts3D, descriptors);
+  if (image.rows % frame_data->depthRaw().rows == 0 &&
+      image.cols % frame_data->depthRaw().cols == 0)
+  {
+    try
+    {
+      auto kpts = detector->generateKeypoints(image, depth_mask);
+      auto descriptors = detector->generateDescriptors(image, kpts);
+      auto kpts3D = detector->generateKeypoints3D(*frame_data, kpts);
+      frame_data->setFeatures(kpts, kpts3D, descriptors);
+    }
+    catch(const cv::Exception& e)
+    {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: " << e.what() << '\n');
+    }
+  }
+  else
+  {
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nImage empty");
+  }
+  RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nCompute_local_descriptors end.");
 }
 
 bool RGBDHandler::generate_new_keyframe(std::shared_ptr<rtabmap::SensorData> &keyframe)
