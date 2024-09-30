@@ -105,6 +105,7 @@ include_directories(
 SET(Libraries
    pcl_conversions
    cv_bridge
+   backward_ros
    rclcpp
    rclcpp_components
    sensor_msgs
