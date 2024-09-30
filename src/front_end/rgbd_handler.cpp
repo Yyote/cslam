@@ -333,6 +333,7 @@ void RGBDHandler::compute_local_descriptors(
     //     RCLCPP_ERROR_STREAM(node_->get_logger(), "Error: Interpolated depth image has invalid dimensions.");
     //     return;
     // }
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "map_manager: \nCompute_local_descriptors end.");
   }
 
   rtabmap::ParametersMap registration_params;
