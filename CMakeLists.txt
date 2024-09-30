@@ -66,6 +66,8 @@ find_package(RTABMap 0.20.18 REQUIRED)
 # Find GTSAM
 find_package(GTSAM CONFIG REQUIRED)
 
+include(FetchContent)
+
 FetchContent_Declare(Backward    #Note: For some reason I ran into issues when the target here is called backwards with a small b at the beginning
     GIT_REPOSITORY https://github.com/bombela/backward-cpp
     GIT_TAG master  # or a version tag, such as v1.6
